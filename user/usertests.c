@@ -246,7 +246,6 @@ copyinstr3(char *s)
 void
 rwsbrk(char* s)
 {
-  (void)s;
   int fd, n;
   
   uint64 a = (uint64) sbrk(8192);
