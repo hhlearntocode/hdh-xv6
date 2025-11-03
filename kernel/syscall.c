@@ -203,18 +203,13 @@ syscall(void)
       printf("%d: syscall %s", p->pid, syscall_names[num]);
 
       printf(" -> %ld, argument: ", p->trapframe->a0);
-      if (syscall_nargs[num] == 0) {
-        printf(0);
-      }
-      else {
-        for (int i = 0; i < syscall_nargs[num]; i++) {
-          printf("%ld", args[i]);
-          if (i < syscall_nargs[num] - 1) {
-            printf(" "); 
-          }
+      for (int i = 0; i < syscall_nargs[num]; i++) {
+        printf("%ld", args[i]);
+        if (i < syscall_nargs[num] - 1) {
+          printf(" "); 
         }
-        printf("\n");
       }
+      printf("\n");
     }
   } else {
     printf("%d %s: unknown sys call %d\n",
