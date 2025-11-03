@@ -155,6 +155,31 @@ static const char *syscall_names[] = {
   [SYS_trace]   "trace",
 };
 
+const int syscall_nargs[] = {
+  [SYS_fork]    0, // fork()
+  [SYS_exit]    1, // exit(status)
+  [SYS_wait]    1, // wait(addr)
+  [SYS_pipe]    1, // pipe(fds)
+  [SYS_read]    3, // read(fd, buf, n)
+  [SYS_kill]    1, // kill(pid)
+  [SYS_exec]    2, // exec(path, argv)
+  [SYS_fstat]   2, // fstat(fd, stat)
+  [SYS_chdir]   1, // chdir(path)
+  [SYS_dup]     1, // dup(fd)
+  [SYS_getpid]  0, // getpid()
+  [SYS_sbrk]    1, // sbrk(n)
+  [SYS_sleep]   1, // sleep(n)
+  [SYS_uptime]  0, // uptime()
+  [SYS_open]    2, // open(path, mode)
+  [SYS_write]   3, // write(fd, buf, n)
+  [SYS_mknod]   3, // mknod(path, major, minor)
+  [SYS_unlink]  1, // unlink(path)
+  [SYS_link]    2, // link(old, new)
+  [SYS_mkdir]   1, // mkdir(path)
+  [SYS_close]   1, // close(fd)
+  [SYS_trace]   1, // trace(mask)
+};
+
 void
 syscall(void)
 {
@@ -163,12 +188,33 @@ syscall(void)
 
   num = p->trapframe->a7;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    // Use num to lookup the system call function for num, call it,
-    // and store its return value in p->trapframe->a0
+    uint64 args[6];
+    args[0] = p->trapframe->a0;
+    args[1] = p->trapframe->a1;
+    args[2] = p->trapframe->a2;
+    args[3] = p->trapframe->a3;
+    args[4] = p->trapframe->a4;
+    args[5] = p->trapframe->a5;
+
     p->trapframe->a0 = syscalls[num]();
     // trace mask 
-    if (p->tracemask & (1 << num)) {
-      printf("%d: syscall %s -> %ld\n", p->pid, syscall_names[num], p->trapframe->a0);
+    if ((p->tracemask & (1 << num)) != 0) {
+
+      printf("%d: syscall %s", p->pid, syscall_names[num]);
+
+      printf(" -> %ld, argument: ", p->trapframe->a0);
+      if (syscall_nargs[num] == 0) {
+        printf(0);
+      }
+      else {
+        for (int i = 0; i < syscall_nargs[num]; i++) {
+          printf("%ld", args[i]);
+          if (i < syscall_nargs[num] - 1) {
+            printf(" "); 
+          }
+        }
+        printf("\n");
+      }
     }
   } else {
     printf("%d %s: unknown sys call %d\n",
