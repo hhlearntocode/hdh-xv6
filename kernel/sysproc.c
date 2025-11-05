@@ -7,6 +7,12 @@
 #include "proc.h"
 #include "sysinfo.h"
 
+uint64 count_free_memory(void);
+uint64 count_processes(void);
+
+extern uint64 load_avg;
+extern struct spinlock pid_lock;
+
 uint64
 sys_exit(void)
 {
@@ -116,6 +122,10 @@ sys_sysinfo(void)
 
   info.freemem = count_free_mem();
   info.nproc = count_procs();
+
+  acquire(&pid_lock);
+  info.load_avg = load_avg;
+  release(&pid_lock);
 
   if (copyout(myproc()->pagetable, addr, (char *)&info, sizeof(info)) < 0) {
     return -1;
