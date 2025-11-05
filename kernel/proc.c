@@ -6,6 +6,10 @@
 #include "proc.h"
 #include "defs.h"
 
+struct proc proc[NPROC];
+struct proc *initproc;
+
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -18,7 +22,11 @@ struct spinlock pid_lock;
 extern void forkret(void);
 static void freeproc(struct proc *p);
 
+struct spinlock proc_lock;
+
 extern char trampoline[]; // trampoline.S
+
+extern struct spinlock tickslock;
 
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
@@ -695,4 +703,17 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+uint64
+count_procs(void)
+{
+  struct proc *p;
+  int count = 0;
+  for(p = proc; p < &proc[NPROC]; p++) {
+    if(p->state != UNUSED) {
+      count++;
+    }
+  }
+  return count;
 }

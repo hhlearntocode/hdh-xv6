@@ -199,8 +199,7 @@ UPROGS=\
 	$U/_primes\
 	$U/_find\
 	$U/_xargs\
-
-
+	$U/_sysinfotest\
 
 ifeq ($(LAB),syscall)
 UPROGS += \
@@ -263,8 +262,6 @@ ifeq ($(LAB),fs)
 UPROGS += \
 	$U/_bigfile
 endif
-
-
 
 ifeq ($(LAB),net)
 UPROGS += \

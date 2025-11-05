@@ -1,4 +1,10 @@
 struct stat;
+struct sysinfo;
+
+struct sysinfo {
+  uint64 freemem; 
+  uint64 nproc; 
+};
 
 // system calls
 int fork(void);
@@ -23,6 +29,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int trace(int mask);
+int sysinfo(struct sysinfo *);
 
 // ulib.c
 int stat(const char*, struct stat*);
